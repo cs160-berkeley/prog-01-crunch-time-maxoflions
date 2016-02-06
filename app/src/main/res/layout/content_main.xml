@@ -26,7 +26,6 @@
         android:inputType="numberDecimal"
         android:ems="10"
         android:id="@+id/ex_amount"
-        android:text="0"
         android:editable="false"
         android:textSize="20sp"
         android:layout_below="@+id/exercise_selection"

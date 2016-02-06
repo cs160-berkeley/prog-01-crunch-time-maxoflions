@@ -1,7 +1,9 @@
 package com.max.caloriecruncher;
 
+import android.app.DialogFragment;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -9,22 +11,23 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemSelectedListener;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.widget.AdapterView.OnItemSelectedListener;
+
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements NewExerciseDialogFragment.NoticeDialogListener {
 
-    /* Which entry was edited last, minutes or calories */
-    String last_entered;
+
+    public static Exercise adding;
     private MyAdapter mAdapter;
+    List<String> categories;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,8 +35,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 //        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
 //        setSupportActionBar(toolbar);
-
-        last_entered = "minutes";
 
         final Spinner spinner = (Spinner) findViewById(R.id.exercise_selection);
         final TextView units = (TextView) findViewById(R.id.units);
@@ -47,7 +48,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Spinner Drop down elements
-        List<String> categories = new ArrayList<String>();
+        categories = new ArrayList<String>();
         categories.add("Jogging");
         categories.add("Pushups");
         categories.add("Situps");
@@ -68,13 +69,6 @@ public class MainActivity extends AppCompatActivity {
         mAdapter = new MyAdapter(getApplicationContext(), alternatesData);
         AlternateCardInfo.setAdapter(mAdapter);
 
-//        for (AlternateCardInfo aci: alternatesData) {
-//            mAdapter.addItem(aci);
-//        }
-//        mAdapter.addAll(alternatesData);
-//        mAdapter.clear();
-//        mAdapter.addAll(alternatesData);
-//        mAdapter.notifyDataSetChanged();
         mAdapter.notifyDataSetInvalidated();
         alternates.setAdapter(mAdapter);
 
@@ -105,14 +99,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                showNoticeDialog();
+            }
+        });
 
         // Spinner element
 
@@ -125,13 +118,13 @@ public class MainActivity extends AppCompatActivity {
                 // On selecting a spinner item
                 String item = parent.getItemAtPosition(position).toString();
 
-                Exercise.update_cals(calories.getText().toString(), spinner, calories, units, alternatesData);
-
-                // Showing selected spinner item
-                Toast.makeText(parent.getContext(), "Selected: " + item, Toast.LENGTH_LONG).show();
+                Exercise.update_ex(ex_amount.getText().toString(), spinner, calories, units, alternatesData);
+                String amt = ex_amount.getText().toString();
+                double c = Exercise.update_ex(amt, spinner, calories, units, alternatesData);
+                Exercise.update_alternates(c, AlternateCardInfo.getAll_cards());
             }
             public void onNothingSelected(AdapterView<?> arg0) {
-                // TODO Auto-generated method stub
+
             }
         });
 
@@ -146,27 +139,6 @@ public class MainActivity extends AppCompatActivity {
         spinner.setAdapter(dataAdapter);
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        // Inflate the menu; this adds items to the action bar if it is present.
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        // Handle action bar item clicks here. The action bar will
-//        // automatically handle clicks on the Home/Up button, so long
-//        // as you specify a parent activity in AndroidManifest.xml.
-//        int id = item.getItemId();
-//
-//        //noinspection SimplifiableIfStatement
-//        if (id == R.id.action_settings) {
-//            Toast.makeText(MainActivity.this, "Settings Selected.", Toast.LENGTH_SHORT).show();
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
     public class MyAdapter extends ArrayAdapter<AlternateCardInfo> {
 
         private ArrayList<AlternateCardInfo> mData = new ArrayList<>();
@@ -208,17 +180,36 @@ public class MainActivity extends AppCompatActivity {
             TextView amountText = (TextView) rowView.findViewById(R.id.equiv_amount);
             amountText.setText(Double.toString(values.get(position).getAmount()));
 
-//            ImageView imageView = (ImageView) rowView.findViewById(R.id.icon);
-            // change the icon for Windows and iPhone
-//            String s = values.get(position);
-//            if (s.startsWith("iPhone")) {
-////                imageView.setImageResource(R.drawable.no);
-//            } else {
-//                imageView.setImageResource(R.drawable.ok);
-//            }
-
             return rowView;
         }
+    }
+
+    public void showNoticeDialog() {
+        // Create an instance of the dialog fragment and show it
+        adding = new Exercise();
+        final DialogFragment dialog = new NewExerciseDialogFragment();
+
+        dialog.show(getFragmentManager(), "NewExerciseDialogFragment");
+    }
+
+    // The dialog fragment receives a reference to this Activity through the
+    // Fragment.onAttach() callback, which it uses to call the following methods
+    // defined by the NoticeDialogFragment.NoticeDialogListener interface
+    @Override
+    public void onDialogPositiveClick() {
+        if(adding==null || adding.getExName()==null || adding.getRatio()==0) {
+            Toast.makeText(MainActivity.this, "Not a valid exercise.", Toast.LENGTH_LONG).show();
+        }
+        new AlternateCardInfo(adding.getExName(), adding.getType(), 0);
+        categories.add(adding.getExName());
+        Exercise.addExercise(adding);
+        Exercise.refresh_alternates();
+    }
+
+    @Override
+    public void onDialogNegativeClick() {
+        // User touched the dialog's negative button
+
     }
 
     public static class AlternateCardInfo {
@@ -233,6 +224,12 @@ public class MainActivity extends AppCompatActivity {
             this.units = units;
             this.amount = amount;
             all_cards.add(this);
+        }
+
+        public void updateCards() {
+            adapter.clear();
+            adapter.addAll(MainActivity.AlternateCardInfo.getAll_cards());
+            adapter.notifyDataSetInvalidated();
         }
 
         public String getName() {
