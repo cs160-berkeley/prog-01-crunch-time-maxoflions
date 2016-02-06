@@ -1,22 +1,24 @@
 # PROG 01: Crunch Time
 
-Briefly describe your app here.
-
 ## Authors
 
-FirstName LastName ([your_email@berkeley.edu](mailto:your_email@berkeley.edu))
+Max Leefer ([maxoflions@berkeley.edu](mailto:maxoflions@berkeley.edu))
 
 ## Demo Video
 
-See [your demo video title here] (https://link_to_your_video)
+See [Design01] (https://youtu.be/zuD9BtCQSEg)
 
 ## Screenshots
 
-<img src="screenshots/main.png" height="400" alt="Screenshot"/>
+<img src="screenshots/Adding_new_activity.png" height="400" alt="Screenshot"/>
+<img src="screenshots/Converting.png" height="400" alt="Screenshot"/>
+<img src="screenshots/Cover_photo.png" height="400" alt="Screenshot"/>
+<img src="screenshots/Custom_conversions.png" height="400" alt="Screenshot"/>
+<img src="screenshots/Fractional_conversions.png" height="400" alt="Screenshot"/>
+<img src="screenshots/Initial_Load.png" height="400" alt="Screenshot"/>
+<img src="screenshots/Landscape_mode.png" height="400" alt="Screenshot"/>
+<img src="screenshots/Setting_goals.png" height="400" alt="Screenshot"/>
 
 ## Acknowledgments
 
-* Hat tip to anyone who's code was used
-* Any other support
-
-*Feel free to enhance your README. For Markdown syntax, see [the GitHub Guides](https://guides.github.com/features/mastering-markdown/). Remove this line in your submission.*
+Numerous tutorials, and countless StackOverflow questions to help me learn Android.
